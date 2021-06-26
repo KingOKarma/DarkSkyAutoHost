@@ -13,7 +13,7 @@ exports.run = async (chatClient: ChatClient,
     args: string[]): Promise<void> => {
 
     const res = await fetch(
-        `https://tmi.twitch.tv/group/user/${CONFIG.twitchUsername}/chatters`
+        `https://tmi.twitch.tv/group/user/${channel.slice(1)}/chatters`
     );
 
     if (res.status !== 200) {
