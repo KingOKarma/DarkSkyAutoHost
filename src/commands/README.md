@@ -14,6 +14,53 @@ List of All system commands:
 - Command `ping`
   - Group: System
     - Aliases: `None`
+Responds with pong, used to check if the bot is actually working
+
+---
+
+<br>
+
+- Command `help`
+  - Group: System
+    - Aliases: `command`, `commands`
+Gets a link to here
+
+---
+
+<br>
+
+- Command `getchatters`
+  - Group: System
+    - Aliases: `chatters`
+Get a number count of all chaters in chat
+
+#### System CMDs
+
+---
+
+<br>
+
+- Command `block`
+  - Group: System
+    - Aliases: `blocklist`
+Allows a mod or higher to add, remove or list all users who are block from the bot
+
+---
+
+<br>
+
+- Command `fallback`
+  - Group: System
+    - Aliases: `fb`
+Allows a mod or higher to add, remove or list all users who are on the fallback list (Users who are hosted when no one is scheduled to be hosted)
+
+---
+<br>
+
+- Command `host`
+  - Group: System
+    - Aliases: `hostlist`
+Allows a mod or higher to add, remove or list all users who are next in line to be hosted
 
 ---
 
