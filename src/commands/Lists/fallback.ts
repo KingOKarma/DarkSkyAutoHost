@@ -20,7 +20,7 @@ exports.run = async (chatClient: ChatClient,
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (args[0] === undefined) {
         return chatClient.say(channelHash,
-            "> Please specify either `add`, `remove` or `list` when using this command, \n**Example usage:** "
+            "> Please specify either `add`, `remove` or `list` when using this command,  **Example usage:** "
                 + `\`${CONFIG.prefix}fallback add king_o_karma\``);
     }
     switch (args[0].toLowerCase()) {
@@ -78,18 +78,18 @@ exports.run = async (chatClient: ChatClient,
 
             const pagedList = paginate(STORAGE.fallBackList, 10, Number(page));
 
-            if (pagedList.length === 0) return chatClient.say(channelHash, "That page is empty!\n You can add more users via "
+            if (pagedList.length === 0) return chatClient.say(channelHash, "That page is empty!  You can add more users via "
                     + `\`${CONFIG.prefix}fallback add <channelName>\``);
 
-            const roleList = pagedList.map((list) => `> ○ ${list}\n`);
-            const roles = roleList.join("");
-            return chatClient.say(channelHash, `> listed channels:\n> ${roles}`);
+            const roleList = pagedList.map((list) => ` ○ ${list} `);
+            const roles = roleList.join(",");
+            return chatClient.say(channelHash, `Listed channels: ${roles}`);
 
         }
 
         default: {
             return chatClient.say(channelHash,
-                "> Please specify either `add`, `remove` or `list` when using this command, \n**Example usage:** "
+                "> Please specify either `add`, `remove` or `list` when using this command,  **Example usage:** "
                     + `\`${CONFIG.prefix}fallback add king_o_karma\``);
         }
     }
