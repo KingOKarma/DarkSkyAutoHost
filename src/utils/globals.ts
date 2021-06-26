@@ -12,7 +12,13 @@ export const commandList = [
     // Help CMDs
     { aliases: ["command", "commands"], group: "System", name: "help" },
 
-    { aliases: ["chatters"], group: "System", name: "getchatters" }
+    { aliases: ["chatters"], group: "System", name: "getchatters" },
+
+    { aliases: ["fb"], group: "Lists", name: "fallback" },
+
+    { aliases: ["hostlist"], group: "Lists", name: "host" },
+
+    { aliases: ["blocklist"], group: "Lists", name: "block" }
 
 
 ];
