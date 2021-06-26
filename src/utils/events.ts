@@ -6,26 +6,26 @@ import { Client, TextChannel } from "discord.js";
 import { ApiClient } from "twitch";
 import { ChatClient } from "twitch-chat-client";
 import { CronJob } from "cron";
-import OAuth from "oauth";
 import { StaticAuthProvider } from "twitch-auth";
 import Storage from "./storage";
 import { TwitchPrivateMessage } from "twitch-chat-client/lib/StandardCommands/TwitchPrivateMessage";
 import fetch from "node-fetch";
 
-const twitter_application_consumer_key = CONFIG.twitter.consumerKey; // API Key
-const twitter_application_secret = CONFIG.twitter.consumerSecret; // API Secret
-const twitter_user_access_token = CONFIG.twitter.userAccessToken; // Access Token
-const twitter_user_secret = CONFIG.twitter.userSecret; // Access Token Secret
+// Import OAuth from "oauth";
+// Const twitter_application_consumer_key = CONFIG.twitter.consumerKey; // API Key
+// Const twitter_application_secret = CONFIG.twitter.consumerSecret; // API Secret
+// Const twitter_user_access_token = CONFIG.twitter.userAccessToken; // Access Token
+// Const twitter_user_secret = CONFIG.twitter.userSecret; // Access Token Secret
 
-const oauth = new OAuth.OAuth(
-    "https://api.twitter.com/oauth/request_token",
-    "https://api.twitter.com/oauth/access_token",
-    twitter_application_consumer_key,
-    twitter_application_secret,
-    "1.0A",
-    null,
-    "HMAC-SHA1"
-);
+// Const oauth = new OAuth.OAuth(
+//     "https://api.twitter.com/oauth/request_token",
+//     "https://api.twitter.com/oauth/access_token",
+//     Twitter_application_consumer_key,
+//     Twitter_application_secret,
+//     "1.0A",
+//     Null,
+//     "HMAC-SHA1"
+// );
 
 interface Chatters {
     _links: {};
@@ -55,35 +55,35 @@ const bot = new Client();
 const { prefix } = CONFIG;
 
 
-function twitterPost(user: string): void {
-    if (!CONFIG.twitter.postToTwitter) return;
+// Function twitterPost(user: string): void {
+//     If (!CONFIG.twitter.postToTwitter) return;
 
-    const status = `${user} Has been switched to the new host, check them out at https://twitch.tv/${user.toLowerCase()} \n `
-        + "#StreamerCommunity #StyxCommunity #EverStreamGuild"; // This is the tweet (ie status)
+//     Const status = `${user} Has been switched to the new host, check them out at https://twitch.tv/${user.toLowerCase()} \n `
+//         + "#StreamerCommunity #StyxCommunity #EverStreamGuild"; // This is the tweet (ie status)
 
-    const postBody = {
-        status
-    };
+//     Const postBody = {
+//         Status
+//     };
 
-    // Console.log('Ready to Tweet article:\n\t', postBody.status);
-    oauth.post("https://api.twitter.com/1.1/statuses/update.json",
-        twitter_user_access_token, // Oauth_token (user access token)
-        twitter_user_secret, // Oauth_secret (user secret)
-        postBody, // Post body
-        "", // Post content type ?
-        (err) => {
-            if (err) {
-                console.log(err);
-            } else {
-                // Console.log(data);
-            }
-        });
-}
+//     // Console.log('Ready to Tweet article:\n\t', postBody.status);
+//     oauth.post("https://api.twitter.com/1.1/statuses/update.json",
+//         Twitter_user_access_token, // Oauth_token (user access token)
+//         Twitter_user_secret, // Oauth_secret (user secret)
+//         PostBody, // Post body
+//         "", // Post content type ?
+//         (err) => {
+//             If (err) {
+//                 Console.log(err);
+//             } else {
+//                 // Console.log(data);
+//             }
+//         });
+// }
 
 
 export async function intiChatClient(): Promise<void> {
 
-    const channels = [CONFIG.twitchUsername];
+    const channels = CONFIG.twitchLurkChannels;
 
     const chatClient = new ChatClient(authChatProvider, { botLevel: "known", channels });
 
@@ -93,44 +93,51 @@ export async function intiChatClient(): Promise<void> {
 
     // 30 checks every 5 hours
     const viewerCheck = new CronJob("0 */10 * * * *", async () => {
-        const res = await fetch(
-            `https://tmi.twitch.tv/group/user/${CONFIG.twitchUsername}/chatters`
-        );
+        channels.forEach(async (channelName) => {
+            const res = await fetch(
+                `https://tmi.twitch.tv/group/user/${channelName}/chatters`
+            );
 
-        if (res.status !== 200) {
-            throw new Error(`Received a ${res.status} status code`);
-        }
-
-
-        const body: Chatters = await res.json();
-        const allChatters = body.chatters.viewers;
-        allChatters.concat(body.chatters.staff);
-        allChatters.concat(body.chatters.global_mods);
-        allChatters.concat(body.chatters.admins);
-        allChatters.concat(body.chatters.vips);
-        console.log(`${new Date().toTimeString()} Chatters currently in chat: \n${allChatters.join(", ")}`);
-
-        allChatters.forEach((chatter) => {
-            if (STORAGE.usersBlacklist.includes(chatter)) return;
-
-            const foundChannel = STORAGE.channels.find((channel) => channel.channel === chatter);
-            if (foundChannel === undefined) {
-                STORAGE.channels.push({ channel: chatter, minCheck: 0 });
-                Storage.saveConfig();
-                return;
+            if (res.status !== 200) {
+                throw new Error(`Received a ${res.status} status code`);
             }
 
-            foundChannel.minCheck++;
-            Storage.saveConfig();
-            if (foundChannel.minCheck < 30) return;
 
-            STORAGE.canHost.push(chatter);
-            const hostedChannel = STORAGE.channels.findIndex((ch) => ch.channel === chatter);
-            STORAGE.channels.splice(hostedChannel, 1);
-            Storage.saveConfig();
+            const body: Chatters = await res.json();
+            const allChatters = body.chatters.viewers;
+            allChatters.concat(body.chatters.staff);
+            allChatters.concat(body.chatters.global_mods);
+            allChatters.concat(body.chatters.admins);
+            allChatters.concat(body.chatters.vips);
+            console.log(`${new Date().toTimeString()} Chatters currently in chat: \n${allChatters.join(", ")}`);
+
+            allChatters.forEach((chatter) => {
+                if (STORAGE.usersBlacklist.includes(chatter)) return;
+
+                const foundChannel = STORAGE.channels.find((channel) => channel.channel === chatter);
+                if (foundChannel === undefined) {
+                    STORAGE.channels.push({ channel: chatter, minCheck: 0, oneMessage: false });
+                    Storage.saveConfig();
+                    return;
+                }
+
+                foundChannel.minCheck++;
+                Storage.saveConfig();
+                if (foundChannel.minCheck < 30) return;
+                if (!foundChannel.oneMessage) return;
+
+                STORAGE.canHost.push(chatter);
+                const hostedChannel = STORAGE.channels.findIndex((ch) => ch.channel === chatter);
+                STORAGE.channels.splice(hostedChannel, 1);
+                Storage.saveConfig();
+
+            });
 
         });
     });
+
+    viewerCheck.start();
+
 
     async function backupHost(): Promise<void> {
         const channel = STORAGE.fallBackList[Math.floor(Math.random() * STORAGE.fallBackList.length)];
@@ -147,11 +154,11 @@ export async function intiChatClient(): Promise<void> {
         if (isLive === null) return;
         if (CONFIG.changeHostChannelID !== undefined) {
             const sendChannel = bot.channels.cache.get(CONFIG.changeHostChannelID) as TextChannel;
-            sendChannel.send(`Changed host to ${user.displayName}`).catch(console.error);
+            sendChannel.send(`Changed host to ${user.displayName} \n (<twitch.tv/${user.name}>)`).catch(console.error);
         }
         console.log(`Changed host to ${user.displayName} from fallbacklist`);
         STORAGE.currentlyHosted = channel.toLowerCase();
-        twitterPost(channel);
+        // TwitterPost(channel);
 
         Storage.saveConfig();
         return chatClient.host(CONFIG.botUserName, channel.toLowerCase()).catch(console.error);
@@ -187,16 +194,15 @@ export async function intiChatClient(): Promise<void> {
         STORAGE.canHost.splice(hostedChannel, 1);
         if (CONFIG.changeHostChannelID !== undefined) {
             const sendChannel = bot.channels.cache.get(CONFIG.changeHostChannelID) as TextChannel;
-            sendChannel.send(`Changed host to ${user.displayName}`).catch(console.error);
+            sendChannel.send(`Changed host to ${user.displayName} \n (<twitch.tv/${user.name}>)`).catch(console.error);
         }
         console.log(`Changed host to ${user.displayName}`);
-        twitterPost(channel);
+        // TwitterPost(channel);
 
         Storage.saveConfig();
         return chatClient.host(CONFIG.botUserName, channel.toLowerCase()).catch(console.error);
     });
 
-    viewerCheck.start();
     newHost.start();
 
 
@@ -209,20 +215,28 @@ export async function intiChatClient(): Promise<void> {
     });
 
     chatClient.onMessage(async (channel: string, user: string, message: string, msg: TwitchPrivateMessage) => {
+        const foundChannel = STORAGE.channels.find((ch) => ch.channel === user);
+        if (foundChannel === undefined) {
+            STORAGE.channels.push({ channel: user, minCheck: 0, oneMessage: true });
+            Storage.saveConfig();
+            return;
+        }
 
-        const isLive = await apiClient.helix.streams.getStreamByUserName(channel.slice(1));
+        if (!foundChannel.oneMessage) foundChannel.oneMessage = true;
+
+        // Const isLive = await apiClient.helix.streams.getStreamByUserName(channel.slice(1));
         if (STORAGE.usersBlacklist.includes(channel)) return;
 
-        if (isLive !== null) {
-            if (CONFIG.chatChannelID !== undefined) {
-                const sendChannel = bot.channels.cache.get(CONFIG.chatChannelID) as TextChannel;
-                sendChannel.send(`**${msg.userInfo.displayName}**:  ${message}`).catch(console.error);
-            }
-        } else if (CONFIG.offlineChannelID !== undefined) {
-            const offlineChannel = bot.channels.cache.get(CONFIG.offlineChannelID) as TextChannel;
-            offlineChannel.send(`**${msg.userInfo.displayName}**:  ${message}`).catch(console.error);
+        // If (isLive !== null) {
+        //     If (CONFIG.chatChannelID !== undefined) {
+        //         Const sendChannel = bot.channels.cache.get(CONFIG.chatChannelID) as TextChannel;
+        //         SendChannel.send(`**${msg.userInfo.displayName}**:  ${message}`).catch(console.error);
+        //     }
+        // } else if (CONFIG.offlineChannelID !== undefined) {
+        //     Const offlineChannel = bot.channels.cache.get(CONFIG.offlineChannelID) as TextChannel;
+        //     OfflineChannel.send(`**${msg.userInfo.displayName}**:  ${message}`).catch(console.error);
 
-        }
+        // }
 
 
         const args = message.slice(prefix.length).trim().split(/ +/g);
