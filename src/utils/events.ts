@@ -154,7 +154,7 @@ export async function intiChatClient(): Promise<void> {
         if (isLive === null) return;
         if (CONFIG.changeHostChannelID !== undefined) {
             const sendChannel = bot.channels.cache.get(CONFIG.changeHostChannelID) as TextChannel;
-            sendChannel.send(`Changed host to ${user.displayName} \n (<twitch.tv/${user.name}>)`).catch(console.error);
+            sendChannel.send(`Changed host to ${user.displayName} \n (<twitch.tv/${user.displayName}>)`).catch(console.error);
         }
         console.log(`Changed host to ${user.displayName} from fallbacklist`);
         STORAGE.currentlyHosted = channel.toLowerCase();
@@ -194,7 +194,7 @@ export async function intiChatClient(): Promise<void> {
         STORAGE.canHost.splice(hostedChannel, 1);
         if (CONFIG.changeHostChannelID !== undefined) {
             const sendChannel = bot.channels.cache.get(CONFIG.changeHostChannelID) as TextChannel;
-            sendChannel.send(`Changed host to ${user.displayName} \n (<twitch.tv/${user.name}>)`).catch(console.error);
+            sendChannel.send(`Changed host to ${user.displayName} \n (<twitch.tv/${user.displayName}>)`).catch(console.error);
         }
         console.log(`Changed host to ${user.displayName}`);
         // TwitterPost(channel);
