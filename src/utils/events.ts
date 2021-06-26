@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 /* eslint-disable @typescript-eslint/naming-convention */
 import { CONFIG, STORAGE, commandList } from "../utils/globals";
-import { Client, MessageEmbed, TextChannel } from "discord.js";
+import { Client, TextChannel } from "discord.js";
 import { ApiClient } from "twitch";
 import { ChatClient } from "twitch-chat-client";
 import { CronJob } from "cron";
