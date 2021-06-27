@@ -189,7 +189,7 @@ export async function intiChatClient(): Promise<void> {
             if (isLive === null) return backupHost();
 
         }
-        changeAttempts++;
+        changeAttempts += 1;
         if (isLive === null) return changeHost(changeAttempts);
 
 
@@ -212,7 +212,7 @@ export async function intiChatClient(): Promise<void> {
         console.log("New Host time:");
         console.log(STORAGE.canHost.length === 0);
         const changeAttempts = 0;
-        return changeHost(changeAttempts);
+        void changeHost(changeAttempts);
     });
 
     newHost.start();
