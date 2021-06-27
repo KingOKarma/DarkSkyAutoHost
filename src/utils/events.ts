@@ -169,39 +169,49 @@ export async function intiChatClient(): Promise<void> {
     const newHost = new CronJob("0 */30 * * * *", async () => {
         console.log("New Host time:");
         console.log(STORAGE.canHost.length === 0);
+        let changeAttempts = 0;
+        async function changeHost(): Promise<void> {
 
-        if (STORAGE.canHost.length === 0) {
-            return backupHost();
+            if (STORAGE.canHost.length === 0) {
+                return backupHost();
+            }
+
+            console.log(STORAGE.canHost);
+
+            const channel = STORAGE.canHost[Math.floor(Math.random() * STORAGE.canHost.length)];
+            if (channel === STORAGE.currentlyHosted) return;
+            console.log(channel);
+            const user = await apiClient.helix.users.getUserByName(channel);
+            console.log(user);
+            if (user === null) return;
+            const isLive = await user.getStream();
+
+            console.log(STORAGE.fallBackList);
+            console.log(channel);
+            console.log(`is live?: ${isLive}`);
+
+            if (changeAttempts > 4) {
+                if (isLive === null) return backupHost();
+
+            }
+            if (isLive === null) return changeHost();
+            changeAttempts++;
+
+
+            STORAGE.currentlyHosted = channel.toLowerCase();
+            const hostedChannel = STORAGE.canHost.indexOf(channel);
+            STORAGE.canHost.splice(hostedChannel, 1);
+            if (CONFIG.changeHostChannelID !== undefined) {
+                const sendChannel = bot.channels.cache.get(CONFIG.changeHostChannelID) as TextChannel;
+                sendChannel.send(`Changed host to ${user.displayName} \n (<twitch.tv/${user.displayName}>)`).catch(console.error);
+            }
+            console.log(`Changed host to ${user.displayName}`);
+            // TwitterPost(channel);
+
+            Storage.saveConfig();
+            return chatClient.host(CONFIG.botUserName, channel.toLowerCase()).catch(console.error);
         }
-
-        console.log(STORAGE.canHost);
-
-        const channel = STORAGE.canHost[Math.floor(Math.random() * STORAGE.canHost.length)];
-        if (channel === STORAGE.currentlyHosted) return;
-        console.log(channel);
-        const user = await apiClient.helix.users.getUserByName(channel);
-        console.log(user);
-        if (user === null) return;
-        const isLive = await user.getStream();
-
-        console.log(STORAGE.fallBackList);
-        console.log(channel);
-        console.log(`is live?: ${isLive}`);
-
-        if (isLive === null) return backupHost();
-
-        STORAGE.currentlyHosted = channel.toLowerCase();
-        const hostedChannel = STORAGE.canHost.indexOf(channel);
-        STORAGE.canHost.splice(hostedChannel, 1);
-        if (CONFIG.changeHostChannelID !== undefined) {
-            const sendChannel = bot.channels.cache.get(CONFIG.changeHostChannelID) as TextChannel;
-            sendChannel.send(`Changed host to ${user.displayName} \n (<twitch.tv/${user.displayName}>)`).catch(console.error);
-        }
-        console.log(`Changed host to ${user.displayName}`);
-        // TwitterPost(channel);
-
-        Storage.saveConfig();
-        return chatClient.host(CONFIG.botUserName, channel.toLowerCase()).catch(console.error);
+        return changeHost();
     });
 
     newHost.start();
