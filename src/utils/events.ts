@@ -121,10 +121,10 @@ export async function intiChatClient(): Promise<void> {
                     return;
                 }
 
+                if (!foundChannel.oneMessage) return;
                 foundChannel.minCheck++;
                 Storage.saveConfig();
                 if (foundChannel.minCheck < 30) return;
-                if (!foundChannel.oneMessage) return;
 
                 STORAGE.canHost.push(chatter);
                 const hostedChannel = STORAGE.channels.findIndex((ch) => ch.channel === chatter);
@@ -172,14 +172,15 @@ export async function intiChatClient(): Promise<void> {
 
         if (STORAGE.canHost.length === 0) {
             return backupHost();
-
-
         }
+
         console.log(STORAGE.canHost);
 
         const channel = STORAGE.canHost[Math.floor(Math.random() * STORAGE.canHost.length)];
         if (channel === STORAGE.currentlyHosted) return;
+        console.log(channel);
         const user = await apiClient.helix.users.getUserByName(channel);
+        console.log(user);
         if (user === null) return;
         const isLive = await user.getStream();
 
