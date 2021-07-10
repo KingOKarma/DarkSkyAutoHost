@@ -165,36 +165,36 @@ export async function intiChatClient(): Promise<void> {
 
     }
 
-    async function changeHost(changeAttempts: number): Promise<void> {
+    async function changeHost(): Promise<void> {
 
         if (STORAGE.canHost.length === 0) {
             return backupHost();
         }
 
         console.log(STORAGE.canHost);
+        const liveList: string[] = [];
+        STORAGE.canHost.forEach(async (channel) => {
+            const user = await apiClient.helix.users.getUserByName(channel);
+            if (user === null) return;
+            const isLive = await user.getStream();
+            if (isLive === null) return;
+            liveList.push(channel);
 
-        const channel = STORAGE.canHost[Math.floor(Math.random() * STORAGE.canHost.length)];
-        if (channel === STORAGE.currentlyHosted) return;
-        console.log(channel);
-        const user = await apiClient.helix.users.getUserByName(channel);
-        console.log(user);
-        if (user === null) return;
-        const isLive = await user.getStream();
+        });
 
-        console.log(STORAGE.fallBackList);
-        console.log(channel);
-        console.log(`is live?: ${isLive}`);
-
-        if (changeAttempts > 4) {
-            if (isLive === null) return backupHost();
-
+        if (liveList.length === 0) {
+            return backupHost();
         }
-        changeAttempts += 1;
-        if (isLive === null) return changeHost(changeAttempts);
 
+        let ranchannel = liveList[Math.floor(Math.random() * liveList.length)];
+        if (ranchannel === STORAGE.currentlyHosted) ranchannel = liveList[Math.floor(Math.random() * liveList.length)];
+        console.log(ranchannel);
+        const user = await apiClient.helix.users.getUserByName(ranchannel);
+        if (user === null) return;
+        console.log(STORAGE.fallBackList);
 
-        STORAGE.currentlyHosted = channel.toLowerCase();
-        const hostedChannel = STORAGE.canHost.indexOf(channel);
+        STORAGE.currentlyHosted = ranchannel.toLowerCase();
+        const hostedChannel = STORAGE.canHost.indexOf(ranchannel);
         STORAGE.canHost.splice(hostedChannel, 1);
         if (CONFIG.changeHostChannelID !== undefined) {
             const sendChannel = bot.channels.cache.get(CONFIG.changeHostChannelID) as TextChannel;
@@ -205,14 +205,15 @@ export async function intiChatClient(): Promise<void> {
         // TwitterPost(channel);
 
         Storage.saveConfig();
-        return chatClient.host(CONFIG.botUserName, channel.toLowerCase()).catch(console.error);
+        return chatClient.host(CONFIG.botUserName, ranchannel.toLowerCase()).catch(console.error);
+
+
     }
 
     const newHost = new CronJob("0 */30 * * * *", async () => {
         console.log("New Host time:");
         console.log(STORAGE.canHost.length === 0);
-        const changeAttempts = 0;
-        void changeHost(changeAttempts);
+        void changeHost();
     });
 
     newHost.start();
