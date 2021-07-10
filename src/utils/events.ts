@@ -258,6 +258,7 @@ export async function intiChatClient(): Promise<void> {
         if (cmd === undefined) {
             return;
         }
+        if (!message.startsWith(CONFIG.prefix)) return;
 
         const cmdIndex = commandList.findIndex((n) => {
 
