@@ -10,22 +10,32 @@ export function twitchReady(client: ExtendedClient): void {
 
     // 18 checks every 3 hours
     // This interval default runs every 10 minuites, and does a check to see if users are in chat or not
-    setInterval(async () => {
+    setInterval(() => {
         const allChatters: string[] = [];
+        const allChannels = [] as Chatters[];
 
         try {
-            const res = await fetch(
-                `https://tmi.twitch.tv/group/user/${CONFIG.twitchUsername.toLowerCase()}/chatters`
-            );
-            const data = (await res.json()) as Chatters;
 
-            allChatters.push(...data.chatters.admins);
-            allChatters.push(...data.chatters.broadcaster);
-            allChatters.push(...data.chatters.global_mods);
-            allChatters.push(...data.chatters.moderators);
-            allChatters.push(...data.chatters.staff);
-            allChatters.push(...data.chatters.viewers);
-            allChatters.push(...data.chatters.vips);
+
+            CONFIG.twitchUsernames.forEach(async (twitchUsername) => {
+                const res = await fetch(
+                    `https://tmi.twitch.tv/group/user/${twitchUsername.toLowerCase()}/chatters`
+                );
+                const data = (await res.json()) as Chatters;
+                allChannels.push(data);
+
+            });
+
+            allChannels.forEach((channel) => {
+                allChatters.push(...channel.chatters.admins);
+                allChatters.push(...channel.chatters.broadcaster);
+                allChatters.push(...channel.chatters.global_mods);
+                allChatters.push(...channel.chatters.moderators);
+                allChatters.push(...channel.chatters.staff);
+                allChatters.push(...channel.chatters.viewers);
+                allChatters.push(...channel.chatters.vips);
+            });
+
         } catch (err) {
             console.error(`Failed to get Chatters array due to:\n${err}`);
         }
@@ -127,12 +137,12 @@ export function twitchReady(client: ExtendedClient): void {
         // 30 mins 1800000
     }, 1800000);
 
-    setInterval(async () => {
-        const stream = await client.apiClient.streams.getStreamByUserName(CONFIG.twitchUsername);
+    // SetInterval(async () => {
+    //     Const stream = await client.apiClient.streams.getStreamByUserName(CONFIG.twitchUsername);
 
-        client.isLive = stream !== null ? true : false;
-        // Console.log(`${CONFIG.twitchUsername} is currently ${stream !== null ? "Live" : "Not Live"}`);
+    //     Client.isLive = stream !== null ? true : false;
+    //     // Console.log(`${CONFIG.twitchUsername} is currently ${stream !== null ? "Live" : "Not Live"}`);
 
-    }, 15000);
+    // }, 15000);
 
 }

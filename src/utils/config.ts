@@ -20,7 +20,7 @@ export interface Twitter {
  * @property {string} discordBotToken
  * @property {string} offlineChannelID
  * @property {string} prefix
- * @property {string} twitchUsername
+ * @property {string[]} twitchUsernames
  * @property {Twitter} twitter
  */
 export default class Config {
@@ -42,7 +42,7 @@ export default class Config {
 
     public readonly prefix: string;
 
-    public readonly twitchUsername: string;
+    public readonly twitchUsernames: string[];
 
     public readonly twitter: Twitter;
 
@@ -58,7 +58,7 @@ export default class Config {
         this.discordBotToken = "";
         this.offlineChannelID = "";
         this.prefix = "";
-        this.twitchUsername = "";
+        this.twitchUsernames = [""];
         this.twitter = {
             consumerKey: "",
             consumerSecret: "",
