@@ -13,32 +13,28 @@ export interface Twitter {
 /**
  * This represents the config.yml
  * @class Config
- * @property {string} accessToken
- * @property {string} botAccessToken
- * @property {string} botUserName
+ * @property {string} botUsername
  * @property {string} changeHostChannelID
  * @property {string} chatChannelID
- * @property {string} clientID
+ * @property {string} clientId
  * @property {string} discordBotToken
  * @property {string} offlineChannelID
  * @property {string} prefix
- * @property {string[]} twitchLurkChannels
+ * @property {string} twitchUsername
  * @property {Twitter} twitter
  */
 export default class Config {
     private static readonly _configLocation = "./config.yml";
 
-    public readonly accessToken: string;
-
-    public readonly botAccessToken: string;
-
-    public readonly botUserName: string;
+    public readonly botUsername: string;
 
     public readonly changeHostChannelID: string | undefined;
 
     public readonly chatChannelID: string | undefined;
 
-    public readonly clientID: string;
+    public readonly clientId: string;
+
+    public readonly clientSecret: string;
 
     public readonly discordBotToken: string | undefined;
 
@@ -46,21 +42,23 @@ export default class Config {
 
     public readonly prefix: string;
 
-    public readonly twitchLurkChannels: string[];
+    public readonly twitchUsername: string;
 
     public readonly twitter: Twitter;
 
+    public usingExpress: boolean;
+
+
     private constructor() {
-        this.accessToken = "";
-        this.botAccessToken = "";
-        this.botUserName = "";
+        this.botUsername = "";
         this.changeHostChannelID = "";
         this.chatChannelID = "";
-        this.clientID = "";
+        this.clientId = "";
+        this.clientSecret = "";
         this.discordBotToken = "";
         this.offlineChannelID = "";
         this.prefix = "";
-        this.twitchLurkChannels = [""];
+        this.twitchUsername = "";
         this.twitter = {
             consumerKey: "",
             consumerSecret: "",
@@ -68,6 +66,7 @@ export default class Config {
             userAccessToken: "",
             userSecret: ""
         };
+        this.usingExpress = false;
     }
 
     /**

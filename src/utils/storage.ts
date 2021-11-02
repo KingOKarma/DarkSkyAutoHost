@@ -5,7 +5,6 @@ import fs from "fs";
 export interface TwitchChannel {
     channel: string;
     minCheck: number;
-    oneMessage: boolean;
 }
 
 /**
@@ -32,9 +31,8 @@ export default class Storage {
 
     public usersBlacklist: string[];
 
-
     private constructor() {
-        this.channels = [{ channel: "", minCheck: 0, oneMessage: false }];
+        this.channels = [{ channel: "", minCheck: 0 }];
         this.canHost = [""];
         this.currentlyHosted = "";
         this.fallBackList = [""];
